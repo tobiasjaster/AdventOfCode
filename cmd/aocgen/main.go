@@ -10,9 +10,9 @@ import (
 	"strings"
 	"time"
 
-	"aocgen/pkg/aoc"
-	"aocgen/pkg/gen"
-	"aocgen/pkg/years"
+	"AdventOfCode/pkg/aoc"
+	"AdventOfCode/pkg/gen"
+	"AdventOfCode/pkg/years"
 
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"

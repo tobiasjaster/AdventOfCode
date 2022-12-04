@@ -4,7 +4,7 @@ package year2022
 import (
 	"testing"
 
-	"aocgen/pkg/aoc"
+	"AdventOfCode/pkg/aoc"
 )
 
 func Benchmark2022Day01(b *testing.B) {

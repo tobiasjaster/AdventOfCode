@@ -2,8 +2,8 @@
 package years
 
 import (
-	"aocgen/pkg/year2021"
-	"aocgen/pkg/year2022"
+	"AdventOfCode/pkg/year2021"
+	"AdventOfCode/pkg/year2022"
 )
 
 func RegisterYears() {

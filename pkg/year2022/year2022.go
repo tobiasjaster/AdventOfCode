@@ -2,7 +2,7 @@
 package year2022
 
 import (
-	"aocgen/pkg/aoc"
+	"AdventOfCode/pkg/aoc"
 )
 
 func Init() {
