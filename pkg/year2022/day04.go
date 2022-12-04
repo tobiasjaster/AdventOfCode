@@ -7,10 +7,6 @@ import (
 
 type Day04 struct{}
 
-func first[T, U any](val T, _ U) T {
-    return val
-}
-
 func (p Day04) PartA(lines []string) any {
 	var countGroup []int
 	var numbers []int

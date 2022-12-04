@@ -2,18 +2,11 @@
 package year2021
 
 import (
-	//"fmt"
-	//"sort"
-	"fmt"
 	"strconv"
 	"strings"
 )
 
 type Day04 struct{}
-
-func first[T, U any](val T, _ U) T {
-    return val
-}
 
 type Game struct {
 	roundCounter int
@@ -21,9 +14,10 @@ type Game struct {
 	bingos []Bingo
 }
 
-type Bingo struct{
+type Bingo struct {
 	solved bool
 	calculation int
+	lastNumber int
 	numbers [][]int
 	template [][]string
 }
@@ -32,6 +26,7 @@ func NewBingo(lines []string) *Bingo {
     b := new(Bingo)
 	b.solved = false
 	b.calculation = 0
+	b.lastNumber = 0
 	b.parseLines(lines)
     return b
 }
@@ -42,17 +37,13 @@ func NewGame(lines []string) *Game {
 	g.bingos = make([]Bingo, 0)
 	var numbLine = strings.ReplaceAll(lines[0], "\r", "")
 	numbers := strings.Split(numbLine,",")
-	for _, number := range numbers {
-		g.numbers = append(g.numbers, first(strconv.Atoi(number)))
-	}
-	bingoLinesList := g.splitLines(lines[2:])
-	for _, bingoLine := range bingoLinesList {
-		g.bingos = append(g.bingos, *NewBingo(bingoLine))
-	}
+	for _, number := range numbers { g.numbers = append(g.numbers, first(strconv.Atoi(number))) }
+	bingoLinesList := splitLines(lines[2:])
+	for _, bingoLine := range bingoLinesList { g.bingos = append(g.bingos, *NewBingo(bingoLine)) }
 	return g
 }
 
-func (g Game) splitLines(lines []string) [][]string{
+func splitLines(lines []string) [][]string{
 	var bingoLines [][]string
 	var start int = -1
 	for i ,line := range lines {
@@ -60,42 +51,51 @@ func (g Game) splitLines(lines []string) [][]string{
 			start = i
 			bingoLines = append(bingoLines, lines[i:i+5])
 		}
-		if start != -1 && line == "" {
-			start = -1
-		}
+		if start != -1 && line == "" { start = -1 }
 	}
 	return bingoLines
 }
 
-func (g *Game) playRound() (bool,int){
-	var number = g.roundCounter
-	var returnNumber int = 0
+func (g *Game) playRound() bool{
+	g.roundCounter++
 	var winner bool = false
 	for i, bingo := range g.bingos{
 		if bingo.solved == true { continue }
-		bingo.newNumber(g.numbers[number])
-		if bingo.solved == true && winner != true {
-			returnNumber = i
-			winner = true
+		bingo.newNumber(g.numbers[g.roundCounter-1])
+		if bingo.checkBingo() == true && !bingo.solved{
+			bingo.solved = true
+			bingo.calculation = bingo.calcUnchecked()*g.numbers[g.roundCounter-1]
+			if winner != true { winner = true }
+		}
+		g.bingos[i] = bingo
+	}
+	return winner
+}
+
+func (g *Game) getFirstSolved() int {
+	for _, bingo := range g.bingos {
+		if bingo.solved { return bingo.calculation }
+	}
+	return 0
+}
+
+func (g *Game) getLastSolved() int {
+	var calculation int = 0
+	for _, number := range reverse(g.numbers) {
+		if calculation != 0 { break }
+		for _, bingo := range g.bingos{
+			if bingo.lastNumber == number{
+				calculation=bingo.calculation
+				break
+			}
 		}
 	}
-	g.roundCounter++
-	return winner, returnNumber
+	return calculation
 }
 
 func (b *Bingo) parseLines(lines []string) {
-	b.numbers = make([][]int,0)
-	b.template = make([][]string,0)
-	b.numbers = append(b.numbers, make([]int,0))
-	b.template = append(b.template, make([]string,0))
-	b.numbers = append(b.numbers, make([]int,0))
-	b.template = append(b.template, make([]string,0))
-	b.numbers = append(b.numbers, make([]int,0))
-	b.template = append(b.template, make([]string,0))
-	b.numbers = append(b.numbers, make([]int,0))
-	b.template = append(b.template, make([]string,0))
-	b.numbers = append(b.numbers, make([]int,0))
-	b.template = append(b.template, make([]string,0))
+	b.numbers = make([][]int,5)
+	b.template = make([][]string,5)
 	for i, line := range lines {
 		line = strings.ReplaceAll(line, "\r", "")
 		line = strings.ReplaceAll(line, "  ", " ")
@@ -108,15 +108,18 @@ func (b *Bingo) parseLines(lines []string) {
 	}
 }
 
-func (b *Bingo) newNumber(number int) bool {
-	var check bool
-	var notChecked int = 0
-	if b.solved == true { return true }
+func (b *Bingo) newNumber(number int) {
+	if b.solved == true { return }
 	for i := 0; i < 5; i++ {
 		for j := 0; j < 5; j++ {
 			if b.numbers[i][j] == number { b.template[i][j] = "X" }
 		}
 	}
+	b.lastNumber = number
+}
+
+func (b *Bingo) checkBingo() bool {
+	var check bool
 	for i := 0; i < 5; i++ {
 		check = true
 		for j := 0; j < 5; j++ {
@@ -129,21 +132,17 @@ func (b *Bingo) newNumber(number int) bool {
 		}
 		if check == true { break; }
 	}
-	if check {
-		for i := 0; i < 5; i++ {
-			for j := 0; j < 5; j++ {
-				if b.template[i][j] != "X" { notChecked += b.numbers[i][j] }
-			}
-		}
-		b.setSolved(notChecked*number)
-		return true
-	}
-	return false
+	return check
 }
 
-func (b *Bingo) setSolved(calculation int) {
-	b.solved = true
-	b.calculation = calculation
+func (b Bingo) calcUnchecked() int {
+	var notChecked int
+	for i := 0; i < 5; i++ {
+		for j := 0; j < 5; j++ {
+			if b.template[i][j] != "X" { notChecked += b.numbers[i][j] }
+		}
+	}
+	return notChecked
 }
 
 func (b *Bingo) getCalculation() int{
@@ -152,28 +151,15 @@ func (b *Bingo) getCalculation() int{
 
 func (p Day04) PartA(lines []string) any {
 	var game Game = *NewGame(lines)
-	var calcNumber int
 	for i := 1; i < len(game.numbers); i++ {
-		winner, bingoNumber := game.playRound()
-		fmt.Println(winner, game.bingos[bingoNumber].getCalculation())
-		if winner == true {
-			calcNumber = game.bingos[bingoNumber].calculation
-			break
-		}
+		winner := game.playRound()
+		if winner == true { break }
 	}
-	return strconv.Itoa(calcNumber)
+	return game.getFirstSolved()
 }
 
 func (p Day04) PartB(lines []string) any {
-	// var game Game = *NewGame(lines)
-	// var calcNumber []int
-	// for i := 1; i < len(game.numbers); i++ {
-	// 	game.playRound()
-	// }
-	// for i := 1; i < len(game.bingos); i++ {
-	// 	calcNumber = append(calcNumber, game.bingos[i].calculation)
-	// }
-	// sort.Slice(calcNumber, func(i, j int) bool { return calcNumber[i] > calcNumber[j] })
-	// return strconv.Itoa(calcNumber[0])
-	return "calcNumber"
+	var game Game = *NewGame(lines)
+	for i := 1; i < len(game.numbers); i++ { game.playRound() }
+	return game.getLastSolved()
 }
