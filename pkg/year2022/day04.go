@@ -14,11 +14,11 @@ func (p Day04) PartA(lines []string) any {
 		if line == "" { continue }
 		numbers = make([]int,4)
 		fmt.Sscanf(line, "%d-%d,%d-%d", &numbers[0], &numbers[1], &numbers[2], &numbers[3])
-		if numbers[0]<=numbers[2] && (numbers[1]-numbers[0])>=numbers[3]-numbers[2] && numbers[0]+(numbers[1]-numbers[0])>=numbers[3]{
+		if numbers[0]<=numbers[2] && numbers[1]>=numbers[3]{
 			countGroup = append(countGroup, i)
 			continue
 		}
-		if numbers[2]<=numbers[0] && (numbers[3]-numbers[2])>=(numbers[1]-numbers[0]) && numbers[2]+(numbers[3]-numbers[2])>=numbers[1]{
+		if numbers[2]<=numbers[0] && numbers[3]>=numbers[1]{
 			countGroup = append(countGroup, i)
 			continue
 		}
