@@ -7,6 +7,14 @@ import (
 
 type Day09 struct{}
 
+func getInitialChain(length int) [][]int {
+	chain := [][]int{}
+	for i := 0; i<length; i++ {
+		chain = append(chain, []int{0,0})
+	}
+	return chain
+}
+
 func removeDuplicateValues(intSlice [][]int) [][]int {
     keys := make(map[string]bool)
     list := [][]int{}
@@ -25,46 +33,59 @@ func removeDuplicateValues(intSlice [][]int) [][]int {
 }
 
 func returnMove(diff int) int {
-	if diff > 0{
+	if diff>0 {
 		return diff-1
-	} else if diff < 0 {
+	} else if diff<0 {
 		return diff+1
-	}
+	} 
 	return 0
 }
 
+func moveHead(direction string, position *[]int) {
+	switch direction{
+	case "L":
+		(*position)[0]--
+	case "R":
+		(*position)[0]++
+	case "U":
+		(*position)[1]++
+	case "D":
+		(*position)[1]--
+	}
+}
+
+func move(direction string, count int, positions *[][]int, lastElemList *[][]int) {
+	length := len((*positions))
+	for i := 0; i<count; i++{
+		moveHead(direction, &((*positions)[0]))
+		for i := 1; i<length; i++ {
+			dif_x := (*positions)[i][0]-(*positions)[i-1][0]
+			dif_y := (*positions)[i][1]-(*positions)[i-1][1]
+			move_x := returnMove(dif_x)
+			move_y := returnMove(dif_y)
+			if move_x == 0 && move_y == 0 {
+				break
+			}
+			(*positions)[i][0] = (*positions)[i-1][0]+move_x
+			(*positions)[i][1] = (*positions)[i-1][1]+move_y
+			if i == (length-1) {
+				(*lastElemList) = append((*lastElemList), []int{(*positions)[length-1][0], (*positions)[length-1][1]})
+			}
+		}
+	}
+}
+
 func (p Day09) PartA(lines []string) any {
-	var grid [][]int 
-	positionH := []int{0,0}
-	positionT := []int{0,0}
-	grid = append(grid, []int{positionT[0], positionT[1]})
+	var grid [][]int
+	var length int = 2
+	positions := getInitialChain(length)
+	grid = append(grid, []int{positions[length-1][0], positions[length-1][1]})
 	var direction string
 	var count int
 	for _, line := range lines {
 		if line == "" {continue}
 		fmt.Sscanf(line, "%s %d", &direction, &count)
-		for i := 0; i<count; i++{
-			switch direction{
-			case "L":
-				positionH[0]--
-			case "R":
-				positionH[0]++
-			case "U":
-				positionH[1]++
-			case "D":
-				positionH[1]--
-			}
-			dif_x := positionT[0]-positionH[0]
-			dif_y := positionT[1]-positionH[1]
-			move_x := returnMove(dif_x)
-			move_y := returnMove(dif_y)
-			if move_x == 0 && move_y == 0 {
-				continue
-			}
-			positionT[0] = positionH[0]+move_x
-			positionT[1] = positionH[1]+move_y
-			grid = append(grid, []int{positionT[0], positionT[1]})
-		}
+		move(direction, count, &positions, &grid)
 	}
 	filteredGrid := removeDuplicateValues(grid)
 	return len(filteredGrid)
@@ -72,49 +93,15 @@ func (p Day09) PartA(lines []string) any {
 
 func (p Day09) PartB(lines []string) any {
 	var grid [][]int 
-	positions := [][]int{}
-	positions = append(positions, []int{0,0})
-	positions = append(positions, []int{0,0})
-	positions = append(positions, []int{0,0})
-	positions = append(positions, []int{0,0})
-	positions = append(positions, []int{0,0})
-	positions = append(positions, []int{0,0})
-	positions = append(positions, []int{0,0})
-	positions = append(positions, []int{0,0})
-	positions = append(positions, []int{0,0})
-	positions = append(positions, []int{0,0})
-	grid = append(grid, []int{positions[9][0], positions[9][1]})
+	var length int = 10
+	positions := getInitialChain(length)
+	grid = append(grid, []int{positions[length-1][0], positions[length-1][1]})
 	var direction string
 	var count int
 	for _, line := range lines {
 		if line == "" {continue}
 		fmt.Sscanf(line, "%s %d", &direction, &count)
-		for i := 0; i<count; i++{
-			switch direction{
-			case "L":
-				positions[0][0]--
-			case "R":
-				positions[0][0]++
-			case "U":
-				positions[0][1]++
-			case "D":
-				positions[0][1]--
-			}
-			for i := 1; i<10; i++ {
-				dif_x := positions[i][0]-positions[i-1][0]
-				dif_y := positions[i][1]-positions[i-1][1]
-				move_x := returnMove(dif_x)
-				move_y := returnMove(dif_y)
-				if move_x == 0 && move_y == 0 {
-					break
-				}
-				positions[i][0] = positions[i-1][0]+move_x
-				positions[i][1] = positions[i-1][1]+move_y
-				if i == 9 {
-					grid = append(grid, []int{positions[9][0], positions[9][1]})
-				}
-			}
-		}
+		move(direction, count, &positions, &grid)
 	}
 	filteredGrid := removeDuplicateValues(grid)
 	return len(filteredGrid)
