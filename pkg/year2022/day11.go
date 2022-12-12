@@ -3,7 +3,6 @@ package year2022
 
 import (
 	//"fmt"
-	"fmt"
 	"sort"
 	"strconv"
 	"strings"
@@ -93,6 +92,8 @@ func NewMonkeys(lines []string, useAllDivisable bool) *Monkeys {
 
 func (m *Monkeys) operateRounds(count int, worryLevel int) {
 	var items []int64
+//	var operationCounts []int
+//	var monkeyItems [][]int64
 	for i:=0;i<count;i++{
 		for i, Monkey := range m.MonkeyList {
 			items = Monkey.Items
@@ -103,6 +104,13 @@ func (m *Monkeys) operateRounds(count int, worryLevel int) {
 			}
 			m.MonkeyList[i] = Monkey
 		}
+//		operationCounts = make([]int, 0)
+//		monkeyItems = make([][]int64, 0)
+//		for _, monkey := range m.MonkeyList{
+//			operationCounts = append(operationCounts, monkey.OperationsCount)
+//			monkeyItems = append(monkeyItems, monkey.Items)
+//		}
+//		fmt.Println(operationCounts, monkeyItems)
 	}
 }
 
@@ -121,7 +129,7 @@ func (p Day11) PartA(lines []string) any {
 
 func (p Day11) PartB(lines []string) any {
 	monkeys := NewMonkeys(lines, true)
-	monkeys.operateRounds(10000, 1)
+	monkeys.operateRounds(20, 1)
 	var operationCounts []int
 	for _, monkey := range monkeys.MonkeyList{
 		operationCounts = append(operationCounts, monkey.OperationsCount)
