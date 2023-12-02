@@ -4,10 +4,12 @@ package years
 import (
 	"AdventOfCode/pkg/year2021"
 	"AdventOfCode/pkg/year2022"
+	"AdventOfCode/pkg/year2023"
 )
 
 func RegisterYears() {
 	year2021.Init()
 	year2022.Init()
+	year2023.Init()
 
 }
