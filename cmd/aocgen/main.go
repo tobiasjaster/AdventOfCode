@@ -193,8 +193,10 @@ func Execute() {
 	rootCmd.AddCommand(runCmd)
 
 	if err := rootCmd.Execute(); err != nil {
+		logrus.Debug(err)
 		os.Exit(1)
 	}
+	logrus.Debug("Execute Finished")
 }
 
 func runYear(year int) {
@@ -209,5 +211,6 @@ func runDay(year, day int) {
 }
 
 func main() {
+	logrus.SetLevel(logrus.DebugLevel)
 	Execute()
 }
