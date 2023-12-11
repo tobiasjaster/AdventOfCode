@@ -10,9 +10,9 @@ import (
 	"strings"
 	"time"
 
-	"aocgen/pkg/aoc"
-	"aocgen/pkg/gen"
-	"aocgen/pkg/years"
+	"AdventOfCode/pkg/aoc"
+	"AdventOfCode/pkg/gen"
+	"AdventOfCode/pkg/years"
 
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -193,8 +193,10 @@ func Execute() {
 	rootCmd.AddCommand(runCmd)
 
 	if err := rootCmd.Execute(); err != nil {
+		logrus.Debug(err)
 		os.Exit(1)
 	}
+	logrus.Debug("Execute Finished")
 }
 
 func runYear(year int) {
@@ -209,5 +211,6 @@ func runDay(year, day int) {
 }
 
 func main() {
+	logrus.SetLevel(logrus.DebugLevel)
 	Execute()
 }
